@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import Folder from "../../assets/images/Folder.png";
 import File from "../../assets/images/File.png";
@@ -8,7 +8,6 @@ const NewComp = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data, folderName } = location.state;
-  console.log(folderName);
   const [showFileOptions, setShowFileOptions] = useState(false);
   const [prevItem, setPrevItem] = useState(null);
   // const [breadCrum, setBreadCrum] = useState("");
@@ -19,10 +18,17 @@ const NewComp = () => {
   //   setBreadCrum(`${breadCrum} / ${folderName}`);
   // }, [setBreadCrum, folderName]);
 
-  const singleClickHandler = (event, type) => {
+  const singleClickHandler = (event) => {
     const item = event.target;
-    if (prevItem && item !== prevItem) {
+    if (item !== prevItem) {
       prevItem.className = "component-item-image";
+    }
+    if (
+      item === prevItem &&
+      item.className === "component-item-image pressed"
+    ) {
+      item.className = "component-item-image";
+      return;
     }
     item.className = "component-item-image pressed";
     setPrevItem(item);
@@ -47,7 +53,7 @@ const NewComp = () => {
       className="component-container"
       onClick={showFileOptions ? () => setShowFileOptions(false) : null}
     >
-      {/*<div className="breadcrum">{breadCrum}</div>*/}
+      {/* <div className="breadcrum">{breadCrum}</div> */}
       <div className="folder-container">
         {data &&
           data.map((item) => {
@@ -57,7 +63,7 @@ const NewComp = () => {
                   <img
                     src={fetchImage(item.type)}
                     alt={item.type}
-                    onClick={(event) => singleClickHandler(event, item.type)}
+                    onClick={(event) => singleClickHandler(event)}
                     onDoubleClick={() =>
                       doubleClickHandler(item.name, item.data, item.type)
                     }
@@ -99,30 +105,3 @@ const NewComp = () => {
 
 export default NewComp;
 
-// const item = event.target;
-//   if (!prevItem) {
-//     item.src = type === "folder" ? SelectedFolder : SelectedFile;
-//     setChangeIcon(true);
-//   }
-
-//   if (prevItem && prevItem === item) {
-//     if (changeIcon) {
-//       item.src = type === "folder" ? Folder : File;
-//       setChangeIcon(false);
-//     } else {
-//       item.src = type === "folder" ? SelectedFolder : SelectedFile;
-//       setChangeIcon(true);
-//     }
-//   }
-
-//   if (prevItem && prevItem !== item) {
-//     if (changeIcon) {
-//       prevItem.src = prevItem.alt === "folder" ? Folder : File;
-//       item.src = type === "folder" ? SelectedFolder : SelectedFile;
-//     }else{
-//       item.src = type === "folder" ? SelectedFolder : SelectedFile;
-//       setChangeIcon(true);
-//     }
-//   }
-
-//   setPrevItem(item);
