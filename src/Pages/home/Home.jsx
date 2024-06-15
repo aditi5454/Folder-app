@@ -1,61 +1,100 @@
 import React, { useEffect, useState } from "react";
-import Folder from "../../assets/images/Folder.png";
-import File from "../../assets/images/File.png";
 import { useNavigate } from "react-router";
 import "./Home.css";
+import { fetchFolderStructure } from "../../common/services/folderStructure";
+import { fetchImage } from "../../common/utils/helper";
+import { ENTITY_TYPE } from "../../common/constants/helpers";
 
 const Home = () => {
-  const [structure, setStructure] = useState();
   const navigate = useNavigate();
-  const [clicked, setClicked] = useState(false);
+  const [folderStructure, setFolderStructure] = useState();
+  const [selected, setSelected] = useState("");
+  const [level, setLevel] = useState(0);
+  const [currentFolder, setCurrentFolder] = useState();
+
+  const getFolderStructure = async () => {
+    fetchFolderStructure()
+      .then((result) => {
+        setFolderStructure(result);
+        setCurrentFolder(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   useEffect(() => {
-    const fetchStructure = async () => {
-      try {
-        const response = await fetch(
-          "https://run.mocky.io/v3/9846505d-43e1-4fd0-9998-48c773b41c39"
-        );
-        const data = await response.json();
-        setStructure(data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchStructure();
+    getFolderStructure();
   }, []);
 
-  const singleClickHandler = (event) => {
-    const item = event.target;
-    item.className = clicked ? 'component-item-image' : 'component-item-image pressed';
-    setClicked(!clicked);
+  const singleClickHandler = (name) => {
+    if (name === selected) {
+      setSelected("");
+    } else {
+      setSelected(name);
+    }
   };
 
-  const doubleClickHandler = (foldername, data) => {
-    navigate(`/${foldername}`, {
-      state: { data: data, folderName: foldername },
-    });
+  const doubleClickHandler = (entityName, data) => {
+    // navigate(`/${foldername}`, {
+    //   state: { data: data, folderName: foldername },
+    // });
+
+    if (currentFolder.type === ENTITY_TYPE.FILE) {
+      alert(`You clicked on file ${entityName}`);
+    }else{
+      setLevel(level+1);
+      setCurrentFolder()
+    }
   };
 
-  const fetchImage = (type) => {
-    return type === "folder" ? Folder : File;
-  };
+  if (level === 0) {
+    return (
+      <div className="home-container">
+        {currentFolder && (
+          <div className="home-item">
+            <img
+              src={fetchImage(currentFolder.type)}
+              alt={currentFolder.type}
+              onClick={() => singleClickHandler(currentFolder.name)}
+              onDoubleClick={() =>
+                doubleClickHandler(currentFolder, currentFolder.data)
+              }
+              width={80}
+              height={80}
+              className={
+                selected === currentFolder.name
+                  ? "component-item-image pressed"
+                  : "component-item-image"
+              }
+            />
+            <div className="home-item-name">{currentFolder.name}</div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="home-container">
-      {structure && (
+      {currentFolder && (
         <div className="home-item">
           <img
-            src={fetchImage(structure.type)}
-            alt={structure.type}
-            onClick={(event) => singleClickHandler(event)}
+            src={fetchImage(currentFolder.type)}
+            alt={currentFolder.type}
+            onClick={() => singleClickHandler(currentFolder.name)}
             onDoubleClick={() =>
-              doubleClickHandler(structure.name, structure.data)
+              doubleClickHandler(currentFolder, currentFolder.data)
             }
             width={80}
             height={80}
-            className="component-item-image"
+            className={
+              selected === currentFolder.name
+                ? "component-item-image pressed"
+                : "component-item-image"
+            }
           />
-          <div className="home-item-name">{structure.name}</div>
+          <div className="home-item-name">{currentFolder.name}</div>
         </div>
       )}
     </div>

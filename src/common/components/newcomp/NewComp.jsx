@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import Folder from "../../assets/images/Folder.png";
-import File from "../../assets/images/File.png";
+import Folder from "../../assets/images/folder-type.png";
+import File from "../../assets/images/file-type.png";
 import "./NewComp.css";
 
 const NewComp = () => {
@@ -10,17 +10,17 @@ const NewComp = () => {
   const { data, folderName } = location.state;
   const [showFileOptions, setShowFileOptions] = useState(false);
   const [prevItem, setPrevItem] = useState(null);
-  // const [breadCrum, setBreadCrum] = useState("");
-  // const [prevPath, setPrevPath] = useState([]);
+  const [breadCrum, setBreadCrum] = useState("");
+  const [prevPath, setPrevPath] = useState([]);
   const buttons = ["copy", "delete", "rename"];
 
-  // useEffect(() => {
-  //   setBreadCrum(`${breadCrum} / ${folderName}`);
-  // }, [setBreadCrum, folderName]);
+  useEffect(() => {
+    setBreadCrum(`${breadCrum} / ${folderName}`);
+  }, [setBreadCrum, folderName]);
 
   const singleClickHandler = (event) => {
     const item = event.target;
-    if (item !== prevItem) {
+    if (prevItem && item !== prevItem) {
       prevItem.className = "component-item-image";
     }
     if (
@@ -53,7 +53,7 @@ const NewComp = () => {
       className="component-container"
       onClick={showFileOptions ? () => setShowFileOptions(false) : null}
     >
-      {/* <div className="breadcrum">{breadCrum}</div> */}
+      <div className="breadcrum">{breadCrum}</div>
       <div className="folder-container">
         {data &&
           data.map((item) => {
@@ -104,4 +104,3 @@ const NewComp = () => {
 };
 
 export default NewComp;
-
